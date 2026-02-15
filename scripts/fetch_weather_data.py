@@ -8,6 +8,9 @@ import os
 import sys
 from datetime import datetime
 
+# Import configuration
+from config import OUTPUT_DIR
+
 # Import API clients
 from met_oceanforecast import OceanforecastAPI
 from met_locationforecast import LocationforecastAPI
@@ -26,7 +29,7 @@ from format_text import TextFormatter
 class WeatherDataCollector:
     """Orchestrate fetching and formatting of weather data from multiple APIs"""
     
-    def __init__(self, output_dir="../outputs"):
+    def __init__(self, output_dir=OUTPUT_DIR):
         """
         Initialize the collector
         

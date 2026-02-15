@@ -1,11 +1,11 @@
 """
-MET Norway Textforecast API 3.0 - Fetch text-based weather forecasts
+MET Norway Textforecast API 2.0 - Fetch text-based weather forecasts
 API: https://api.met.no/weatherapi/textforecast/2.0/
-Note: Using version 2.0 as 3.0 may not be available yet
 """
 
 import requests
 from datetime import datetime
+from config import USER_AGENT
 
 
 class TextforecastAPI:
@@ -13,7 +13,7 @@ class TextforecastAPI:
     
     BASE_URL = "https://api.met.no/weatherapi/textforecast/2.0/landoverview"
     
-    def __init__(self, user_agent="WhatWeather/1.0 github.com/ChrVage/WhatWeather"):
+    def __init__(self, user_agent=USER_AGENT):
         """Initialize with user agent as required by MET Norway API"""
         self.headers = {
             'User-Agent': user_agent

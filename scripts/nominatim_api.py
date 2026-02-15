@@ -6,6 +6,7 @@ API: https://nominatim.openstreetmap.org/
 import requests
 from datetime import datetime
 import time
+from config import USER_AGENT, NOMINATIM_RATE_LIMIT
 
 
 class NominatimAPI:
@@ -13,7 +14,7 @@ class NominatimAPI:
     
     BASE_URL = "https://nominatim.openstreetmap.org"
     
-    def __init__(self, user_agent="WhatWeather/1.0 github.com/ChrVage/WhatWeather"):
+    def __init__(self, user_agent=USER_AGENT):
         """Initialize with user agent as required by Nominatim"""
         self.headers = {
             'User-Agent': user_agent
@@ -24,8 +25,8 @@ class NominatimAPI:
         """Ensure we don't exceed Nominatim's rate limit (1 request per second)"""
         current_time = time.time()
         time_since_last = current_time - self.last_request_time
-        if time_since_last < 1.0:
-            time.sleep(1.0 - time_since_last)
+        if time_since_last < NOMINATIM_RATE_LIMIT:
+            time.sleep(NOMINATIM_RATE_LIMIT - time_since_last)
         self.last_request_time = time.time()
     
     def search(self, query, limit=5):

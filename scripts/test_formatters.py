@@ -7,6 +7,9 @@ import os
 import sys
 from datetime import datetime
 
+# Import configuration
+from config import OUTPUT_DIR
+
 # Import formatters
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from format_html import HTMLFormatter
@@ -56,7 +59,7 @@ def test_formatters():
     print("=" * 80 + "\n")
     
     # Create output directories
-    output_dir = "../outputs"
+    output_dir = OUTPUT_DIR
     for subdir in ['html', 'excel', 'yaml', 'txt']:
         path = os.path.join(output_dir, subdir)
         os.makedirs(path, exist_ok=True)

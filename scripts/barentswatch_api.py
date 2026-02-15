@@ -6,6 +6,7 @@ Note: BarentsWatch requires authentication. This is a demo implementation.
 
 import requests
 from datetime import datetime
+from config import USER_AGENT
 
 
 class BarentsWatchAPI:
@@ -14,7 +15,7 @@ class BarentsWatchAPI:
     # Using public endpoint for demo - real usage requires API key
     BASE_URL = "https://www.barentswatch.no/bwapi"
     
-    def __init__(self, api_key=None, user_agent="WhatWeather/1.0 github.com/ChrVage/WhatWeather"):
+    def __init__(self, api_key=None, user_agent=USER_AGENT):
         """
         Initialize BarentsWatch API client
         

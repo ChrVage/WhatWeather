@@ -5,6 +5,7 @@ API: https://api.met.no/weatherapi/nowcast/2.0/
 
 import requests
 from datetime import datetime
+from config import USER_AGENT
 
 
 class NowcastAPI:
@@ -12,7 +13,7 @@ class NowcastAPI:
     
     BASE_URL = "https://api.met.no/weatherapi/nowcast/2.0/complete"
     
-    def __init__(self, user_agent="WhatWeather/1.0 github.com/ChrVage/WhatWeather"):
+    def __init__(self, user_agent=USER_AGENT):
         """Initialize with user agent as required by MET Norway API"""
         self.headers = {
             'User-Agent': user_agent
