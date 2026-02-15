@@ -16,14 +16,16 @@ from met_oceanforecast import OceanforecastAPI
 from met_locationforecast import LocationforecastAPI
 from met_textforecast import TextforecastAPI
 from met_nowcast import NowcastAPI
-from barentswatch_api import BarentsWatchAPI
+# from barentswatch_api import BarentsWatchAPI
 from nominatim_api import NominatimAPI
+from kartverket_tide import KartverketTideAPI
 
 # Import formatters
 from format_html import HTMLFormatter
 from format_excel import ExcelFormatter
 from format_yaml import YAMLFormatter
 from format_text import TextFormatter
+import json
 
 
 class WeatherDataCollector:
@@ -47,50 +49,37 @@ class WeatherDataCollector:
     
     def ensure_output_dirs(self):
         """Create output directories if they don't exist"""
-        subdirs = ['html', 'excel', 'yaml', 'txt']
+        subdirs = ['json', 'excel']
         for subdir in subdirs:
             path = os.path.join(self.output_dir, subdir)
             os.makedirs(path, exist_ok=True)
     
-    def save_outputs(self, data, name, title):
+    def save_outputs(self, data, name, title, include_excel=False):
         """
-        Save data in all formats
+        Save data in JSON format (default response) and optionally Excel
         
         Args:
             data: Dictionary containing API response
             name: Base filename (without extension)
             title: Title for the output
+            include_excel: Whether to also generate Excel output for timeseries data
         """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         base_name = f"{name}_{timestamp}"
         
-        print(f"  Saving {name} outputs...")
+        print(f"  Saving {name} output...")
         
-        # HTML
-        html_content = self.html_formatter.format(data, title)
-        html_path = os.path.join(self.output_dir, 'html', f"{base_name}.html")
-        with open(html_path, 'w', encoding='utf-8') as f:
-            f.write(html_content)
-        print(f"    ✓ HTML: {html_path}")
+        # JSON (default response format)
+        json_path = os.path.join(self.output_dir, 'json', f"{base_name}.json")
+        with open(json_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        print(f"    ✓ JSON: {json_path}")
         
-        # Excel
-        excel_path = os.path.join(self.output_dir, 'excel', f"{base_name}.xlsx")
-        self.excel_formatter.format(data, excel_path, title)
-        print(f"    ✓ Excel: {excel_path}")
-        
-        # YAML
-        yaml_content = self.yaml_formatter.format(data)
-        yaml_path = os.path.join(self.output_dir, 'yaml', f"{base_name}.yaml")
-        with open(yaml_path, 'w', encoding='utf-8') as f:
-            f.write(yaml_content)
-        print(f"    ✓ YAML: {yaml_path}")
-        
-        # Plain Text
-        text_content = self.text_formatter.format(data, title)
-        text_path = os.path.join(self.output_dir, 'txt', f"{base_name}.txt")
-        with open(text_path, 'w', encoding='utf-8') as f:
-            f.write(text_content)
-        print(f"    ✓ Text: {text_path}")
+        # Excel (for timeseries data)
+        if include_excel:
+            excel_path = os.path.join(self.output_dir, 'excel', f"{base_name}.xlsx")
+            self.excel_formatter.format(data, excel_path, title)
+            print(f"    ✓ Excel: {excel_path}")
     
     def fetch_all(self):
         """Fetch data from all APIs and save in all formats"""
@@ -99,20 +88,16 @@ class WeatherDataCollector:
         print("=" * 80 + "\n")
         
         # Test coordinates for Norwegian coast
-        # Bergen area
-        lat_bergen = 60.39
-        lon_bergen = 5.32
-        
-        # Oslo area
-        lat_oslo = 59.91
-        lon_oslo = 10.75
+        # Stolmen area
+        lat_stolmen = 60.00
+        lon_stolmen = 5.00
         
         # 1. MET Norway - Oceanforecast
         print("1. Fetching MET Norway Oceanforecast 2.0...")
         try:
             ocean_api = OceanforecastAPI()
-            ocean_data = ocean_api.fetch(lat=lat_bergen, lon=lon_bergen)
-            self.save_outputs(ocean_data, "oceanforecast", "MET Norway Oceanforecast 2.0")
+            ocean_data = ocean_api.fetch(lat=lat_stolmen, lon=lon_stolmen)
+            self.save_outputs(ocean_data, "oceanforecast", "MET Norway Oceanforecast 2.0", include_excel=True)
             print("  ✓ Oceanforecast data collected\n")
         except Exception as e:
             print(f"  ✗ Error: {e}\n")
@@ -121,8 +106,8 @@ class WeatherDataCollector:
         print("2. Fetching MET Norway Locationforecast 2.0...")
         try:
             location_api = LocationforecastAPI()
-            location_data = location_api.fetch(lat=lat_oslo, lon=lon_oslo)
-            self.save_outputs(location_data, "locationforecast", "MET Norway Locationforecast 2.0")
+            location_data = location_api.fetch(lat=lat_stolmen, lon=lon_stolmen)
+            self.save_outputs(location_data, "locationforecast", "MET Norway Locationforecast 2.0", include_excel=True)
             print("  ✓ Locationforecast data collected\n")
         except Exception as e:
             print(f"  ✗ Error: {e}\n")
@@ -141,24 +126,34 @@ class WeatherDataCollector:
         print("4. Fetching MET Norway Nowcast 2.0...")
         try:
             nowcast_api = NowcastAPI()
-            nowcast_data = nowcast_api.fetch(lat=lat_oslo, lon=lon_oslo)
-            self.save_outputs(nowcast_data, "nowcast", "MET Norway Nowcast 2.0")
+            nowcast_data = nowcast_api.fetch(lat=lat_stolmen, lon=lon_stolmen)
+            self.save_outputs(nowcast_data, "nowcast", "MET Norway Nowcast 2.0", include_excel=True)
             print("  ✓ Nowcast data collected\n")
         except Exception as e:
             print(f"  ✗ Error: {e}\n")
         
-        # 5. BarentsWatch
-        print("5. Fetching BarentsWatch coastal data...")
+        # 5. Kartverket - Tide Predictions
+        print("5. Fetching Kartverket Tide predictions...")
         try:
-            barents_api = BarentsWatchAPI()
-            barents_data = barents_api.fetch_coastal_info()
-            self.save_outputs(barents_data, "barentswatch", "BarentsWatch Coastal Data")
-            print("  ✓ BarentsWatch data collected\n")
+            tide_api = KartverketTideAPI()
+            tide_data = tide_api.fetch(lat=lat_stolmen, lon=lon_stolmen, days_ahead=7)
+            self.save_outputs(tide_data, "tide", "Kartverket Tide Predictions", include_excel=True)
+            print("  ✓ Tide data collected\n")
         except Exception as e:
             print(f"  ✗ Error: {e}\n")
         
-        # 6. Nominatim - Geocoding
-        print("6. Fetching Nominatim geocoding data...")
+        # 6. BarentsWatch
+        # print("6. Fetching BarentsWatch coastal data...")
+        # try:
+        #     barents_api = BarentsWatchAPI()
+        #     barents_data = barents_api.fetch_coastal_info()
+        #     self.save_outputs(barents_data, "barentswatch", "BarentsWatch Coastal Data")
+        #     print("  ✓ BarentsWatch data collected\n")
+        # except Exception as e:
+        #     print(f"  ✗ Error: {e}\n")
+        
+        # 7. Nominatim - Geocoding
+        print("7. Fetching Nominatim geocoding data...")
         try:
             nominatim_api = NominatimAPI()
             
@@ -166,8 +161,8 @@ class WeatherDataCollector:
             search_data = nominatim_api.search("Bergen, Norway", limit=3)
             self.save_outputs(search_data, "nominatim_search_bergen", "Nominatim Search: Bergen")
             
-            # Reverse geocode Bergen coordinates
-            reverse_data = nominatim_api.reverse(lat_bergen, lon_bergen)
+            # Reverse geocode Stolmen coordinates
+            reverse_data = nominatim_api.reverse(lat_stolmen, lon_stolmen)
             self.save_outputs(reverse_data, "nominatim_reverse_bergen", "Nominatim Reverse: Bergen")
             
             print("  ✓ Nominatim data collected\n")
