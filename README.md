@@ -15,6 +15,7 @@ This project fetches Norwegian coastal weather data from multiple APIs and displ
 - **Nowcast 2.0**: Short-term precipitation forecasts
 
 ### Other APIs
+- **Kartverket Tide API**: Norwegian tide predictions from Kartverket's Sehavnivå API
 - **BarentsWatch**: Norwegian coastal and marine data (demo implementation)
 - **Nominatim**: OpenStreetMap geocoding service for converting place names to coordinates
 
@@ -32,6 +33,21 @@ pip install -r requirements.txt
 ```
 
 ## Usage
+
+### Quick Testing
+
+To quickly test the Kartverket Tide API:
+
+```bash
+cd scripts
+python quick_test_tide.py
+```
+
+This will:
+- Display all available Norwegian tide stations
+- Fetch tide predictions for Bergen (3-day forecast)
+- Show tide heights for the next 12 hours
+- Use sample data if the API is unavailable
 
 ### Fetch All Weather Data
 
@@ -61,8 +77,13 @@ python met_textforecast.py       # Text forecast
 python met_nowcast.py            # Nowcast
 
 # Other APIs
+python kartverket_tide.py        # Kartverket tide predictions
 python barentswatch_api.py       # BarentsWatch (demo)
 python nominatim_api.py          # Nominatim geocoding
+
+# Test Scripts
+python quick_test_tide.py        # Quick test for Kartverket Tide API
+python test_tide.py              # Full test with multiple stations
 ```
 
 ## Output Formats
@@ -83,8 +104,11 @@ WhatWeather/
 │   ├── met_locationforecast.py # MET Norway Locationforecast API
 │   ├── met_textforecast.py    # MET Norway Textforecast API
 │   ├── met_nowcast.py         # MET Norway Nowcast API
+│   ├── kartverket_tide.py     # Kartverket Tide API
 │   ├── barentswatch_api.py    # BarentsWatch API
 │   ├── nominatim_api.py       # Nominatim Geocoding API
+│   ├── test_tide.py           # Tide API test script
+│   ├── quick_test_tide.py     # Quick tide API test
 │   ├── format_html.py         # HTML formatter
 │   ├── format_excel.py        # Excel formatter
 │   ├── format_yaml.py         # YAML formatter
@@ -113,6 +137,11 @@ WhatWeather/
 ### BarentsWatch
 - [API Documentation](https://www.barentswatch.no/en/articles/api-documentation/)
 - Note: Requires API key for full access (demo implementation included)
+
+### Kartverket
+- [Sehavnivå API](https://api.sehavniva.no/)
+- [API Documentation](https://api.sehavniva.no/tideapi.php)
+- Norwegian tide predictions for coastal locations
 
 ### Nominatim
 - [Usage Policy](https://operations.osmfoundation.org/policies/nominatim/)
